@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>game</title>
+		<link rel="stylesheet" type="text/css" href="css/amazeui.css">
+		<script src="js/jquery-1.11.0.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/amazeui.min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css" media="screen">
+			.game-panel{
+				display: inline-block;
+				width: 47%;
+				height: 700px;
+				border: 1px dashed green;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="am-text-center">
+  		<div id="panel1" class="game-panel am-text-center"></div>
+  		<div id="panel2" class="game-panel am-text-center"></div>
+    </div>
+	</body>
+  <script type="text/javascript">
+
+    // 设置游戏中需要的常量
+      var CELL_RADIUS = 22; // 游戏中方块的边长
+      var GAME_PANEL_ROW = 25; // 游戏面板的行数
+      var GAME_PANEL_COL = 13; // 游戏面板的列数
+      var MAP = new Array();  // 创建地图信息，并初始化
+      var ISOPEN = true;  // 数组是否可以接收方块信息
+
+      var CELL = {
+        id : 1,
+        size : 4 ,
+        model : [
+          [1,1,1,1],
+          [0,0,0,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+
+      var CELL_ARRAY = new Array();
+      var SQUARE_ARRAY = new Array();
+
+    $(function(){
+
+      function mapInit(row,col,map){
+        // console.log(row+"\t"+col+"\t"+map);
+        // console.log(map);
+        for (var i = 0; i < row; i++) {
+          map.push(new Array(col));
+          //console.log(map);
+          for (var j = 0; j < col; j++) {
+            map[i][j] = 0;
+          }
+        }
+        // console.log("被执行");
+      }
+
+      mapInit(GAME_PANEL_ROW,GAME_PANEL_COL,MAP);
+      MAP[0][1] = 1;
+      // console.log(MAP);
+      // console.log(CELL_RADIUS);
+      
+      // 初始化方块模板数组
+      SQUARE_ARRAY = squareInit();
+
+      // 绘制原始地图（测试）
+      // 在游戏面板中分别加入canvas画布
+      var $game_panel = $('.game-panel');
+      var CANVAS_WIDTH = CELL_RADIUS * (GAME_PANEL_COL + 2); // 画布的宽
+      var CANVAS_HEIGHT = CELL_RADIUS * (GAME_PANEL_ROW + 2); // 画布的高
+      // console.log($game_panel);
+      var canvas = '<canvas width = "'
+                  + CANVAS_WIDTH
+                  +'" height = "'
+                  + CANVAS_HEIGHT
+                  +'" style = "border:3px solid gray; margin:50px;"></canvas>';
+      $game_panel.each(function(){
+        $(this).append(canvas);
+      });
+
+      // 在画布上绘制小格子
+      var $canvas = $('canvas');
+      $canvas.each(function(cvs){
+        // console.log(cvs);
+        // console.log($(this));
+        // 生成画笔
+        var ctx = $(this)[0].getContext('2d');
+        // 将画笔放置会（0、0）点
+        ctx.moveTo(0,0);
+        ctx.setLineDash([5, 2]);
+        ctx.lineWidth = 0.2;
+        for (var i = 0; i < GAME_PANEL_ROW + 2; i++) { // 绘制横线
+          var color_str = 'rgb('+Math.floor(255 - 7 * i)+',' + '0' + ',' + Math.floor(255 - 7 * i) + ')';
+          // console.log(color_str);
+          ctx.strokeStyle = color_str;
+          ctx.moveTo(0,i * CELL_RADIUS);
+          ctx.lineTo(CANVAS_WIDTH,i * CELL_RADIUS);
+          ctx.stroke();
+        }
+        ctx.moveTo(0,0);
+        for (var i = 0; i < GAME_PANEL_COL + 2; i++) { // 绘制竖线
+          var color_str = 'rgb('+ '0' +',' + Math.floor(255 - 7 * i) + ',' + Math.floor(255 - 7 * i) + ')';
+          ctx.strokeStyle = color_str;
+          ctx.moveTo(i * CELL_RADIUS,0);
+          ctx.lineTo(i * CELL_RADIUS,CANVAS_HEIGHT);
+          ctx.stroke();
+        }
+        // ctx.stroke();
+      });
+
+
+
+      // 绘制游戏区域
+      
+
+      // 测试绘制小格子、测试颜色随机
+      $canvas.each(function(){
+        var ctx = $(this)[0].getContext('2d');
+        ctx.fillStyle = random_color();
+        ctx.fillRect( 3 * CELL_RADIUS , 5 * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
+        
+      });
+      
+      console.log($(window));
+      move();
+      drawMap(MAP,$('#panel1 canvas')[0]);
+
+      console.log(SQUARE_ARRAY);
+
+
+    }); // 准备就绪结束
+
+
+    // 设置键盘事件监听
+    function move(){
+
+      $(window).on('keypress',function(e){
+
+        console.log(e);
+        // w --- 119
+        // s --- 115
+        // a --- 97
+        // d --- 100 
+        // 移动方法
+        // 1、得到原来的位置保存
+        // 2、将原来的位置根据方向处理
+        // 3、将原来的位置清除
+        // 4、将现在的位置设置到数组里
+
+
+      });
+
+    }
+
+    // 需要判断是否可以移动
+
+    // // 找到现在操作的方块
+    // var findCurrentSqual = function(){
+    //   // 当前可以操作的方块是从最顶端出现的，那么一开始期方块的位置必定是map[0][?]
+    //   // ------------------------------------------------------------------
+    //   // 每次扫描第一行内容，有方块的位置就加入到数组中
+    //   // 当再次扫描第一行内容的时候，没有一个方块信息，就说明所有方块全部出完
+    //   // 那么就讲该数组关闭，不能再加入任何方块信息
+    //   // 当该数组中，最下面的方块没有移动空间了，那么说明整个方块元素已经到底
+    //   // 这是再次将数组打开再次可以接收方块
+    //   // ------------------------------------------------------------------
+    //   // 那么当没有下落空间的时候就不能再移动
+    //   var cell_array = new Array();
+    //   if (ISOPEN) {
+
+    //     for (var i = 0; i < map[0].length; i++) {
+    //       // 从第4行开始受控制，0、1、2、3行为初始化行，用来添加方块，但是玩家不能控制
+    //       if (map[4][i] == 1) { 
+    //         var cell;
+    //         cell.offsetX = i;
+    //         cell.offsetY = 0;
+    //         cell_array.push(cell);
+    //       } else {
+    //         ISOPEN = false;
+    //       }
+    //     }
+    //   }
+
+    //   return cell_array;
+    // }
+
+
+    // 自动下落的方法
+    
+
+    // 生成方块的方法
+    
+    var getSquare = function(){
+      
+      // 得到可以生成的方块模板数组的长度
+      var square_types = SQUARE_ARRAY.length;
+      var roll_index = getRandomIntInclusive( 0 , square_types - 1);
+      var square = SQUARE_ARRAY[roll_index];
+      var direction = getRandomIntInclusive(0,3);
+
+      
+    }
+
+    // 方块旋转的方法
+    var squareRotate = function( angle , square ){
+
+    }
+
+
+    /**
+     * 初始化方块模板的方法
+     * @return {[type]} [返回装有方块模板的数组]
+     */
+    var squareInit = function(){
+
+      //////////////////////////////////////////
+      //                                      //
+      //  1     2    3    4     5    6    7   //
+      //                                      //
+      // ####  ###  ###   #     #   ###   ##  //
+      //         #  #     ##   ##    #    ##  //
+      //                   #   #              //
+      //                                      //
+      //////////////////////////////////////////
+    
+      var square_array = new Array();
+
+      var square_1 = {
+        id : 1,
+        size : 4 ,
+        model : [
+          [1,1,1,1],
+          [0,0,0,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_1);
+      // console.log(cell_1);
+      
+      var square_2 = {
+        id : 2,
+        size : 4 ,
+        model : [
+          [1,1,1,0],
+          [0,0,1,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_2);
+
+      var square_3 = {
+        id : 3,
+        size : 4 ,
+        model : [
+          [1,1,1,0],
+          [1,0,0,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_3);
+
+      var square_4 = {
+        id : 4,
+        size : 4 ,
+        model : [
+          [1,1,1,0],
+          [0,1,0,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_4);
+
+      var square_5 = {
+        id : 5,
+        size : 4 ,
+        model : [
+          [0,1,0,0],
+          [1,1,0,0],
+          [1,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_5);
+
+      var square_6 = {
+        id : 6,
+        size : 4 ,
+        model : [
+          [0,1,0,0],
+          [1,1,0,0],
+          [1,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_6);
+
+      var square_7 = {
+        id : 7,
+        size : 4 ,
+        model : [
+          [1,1,0,0],
+          [1,1,0,0],
+          [0,0,0,0],
+          [0,0,0,0]
+        ],
+        center : [1,1]
+      }
+      square_array.push(square_7);
+      // console.log(cell_array);
+      return square_array;
+    }
+
+    /**
+     * 根据地图，在指定的canvas上绘制方块
+     * @param  {[type]} map    [地图信息--二维数组]
+     * @param  {[type]} canvas [canvas的DOM元素]
+     * @return {[type]}        []
+     */
+    function drawMap(map,canvas){
+      var ctx = canvas.getContext('2d');
+      for (var i = 0; i < map.length; i++) {
+        for (var j = 0; j < map[0].length; j++) {
+          
+          // 当该地区有方块数据，就将其绘制在地图上
+          if (map[i][j] == 1) {
+            ctx.fillStyle = random_color(); // 设置方块的颜色
+            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
+
+          }
+
+        }
+      }
+    }
+
+
+
+    /**
+     * 生成随机颜色字符串 -- rbg(0,0,0)
+     * @return {[type]} [返回生成好的随机颜色]
+     */
+    var random_color = function(){
+
+      var color_red = getRandomIntInclusive(0,255);
+      var color_yellow = getRandomIntInclusive(0,255);
+      var color_blue = getRandomIntInclusive(0,255);
+
+      return 'rgb('+ color_red +','+ color_yellow +','+ color_blue +')';
+    }
+    /**
+     * 根据所给区间生成随机数
+     * @param  {[type]} min [随机数最小值，向上取整] 
+     * @param  {[type]} max [随机数最大值，向下取整]
+     * @return {[type]}     [返回所得随机数]
+     */
+    function getRandomIntInclusive(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+    }
+  </script>
+</html>
