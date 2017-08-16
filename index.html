@@ -133,7 +133,8 @@
       SQUARE = getSquare();
       console.log(SQUARE + "方块");
       // 启动自动下落
-	    autoDown();
+	    //autoDown();
+      go();
 
     }); // 准备就绪结束
 
@@ -163,25 +164,84 @@
     // 自动下落的方法
     var autoDown = function(){
     	
-    	// console.log(squareInit()[0].model[0].length / 4);
-    	
-    	// for(var i = 0; i < squareInit()[0].model[0].length / 4 ;i++){
-    	// 	for(var j = i*4; j < (i+1) * 4 ; j++){
-    	// 		console.log(squareInit()[0].model[0][j]);
-    	// 	}
-    	// }
-    	var n = 1;
-    	function timeOut(){
-    		setTimeout(function(){
+    	// function timeOut(){
+    	// 	setTimeout(function(){
     			
-	    		// MAP[n][4] = 1;
+	    // 		// MAP[n][4] = 1;
 	    		
+     //      // 保存现在方块的位置
+     //      // var square = new Array();
+     //      // SQUARE.forEach(function(item){
+     //      //   square.push(item);
+     //      // });
+     //      //var square = SQUARE.slice(0);
+     //      var square = deepCopy(SQUARE);
+
+     //      // 将原来位置设置0
+     //      SQUARE.forEach(function(item){
+     //      	console.log(item)
+     //        MAP[item.y][item.x] = 0;
+     //      });
+          
+          
+     //      // 判断是否可以移动
+     //      var result = canMove(MAP,SQUARE);
+     //      console.log(result);
+     //      if (result) {
+     //        // 给所有方块下一1
+     //        SQUARE.forEach(function(item){
+     //          item.y++;
+     //          MAP[item.y][item.x] = 1;
+     //        });
+     //        // SQUARE.forEach(function(item){
+     //        //   MAP[item.y][item.x] = 1;
+     //        // });
+            
+     //        console.log("保存的方块");
+     //        console.log(square);
+     //        console.log("移动的方块");
+     //        console.log(SQUARE);
+
+     //      } else { // 得到新的方块,将触底方块放置到地图上
+     //        SQUARE = getSquare();
+     //        square.forEach(function(item){
+     //          MAP[item.y][item.x] = 2;
+     //        });
+
+     //        console.log("保存的方块");
+     //        console.log(square);
+     //        console.log("移动的方块");
+     //        console.log(SQUARE);
+
+     //      }
+          
+     //      // 显示现在方块
+
+	    // 		drawMap(MAP,$('#panel1 canvas')[0]);
+	    // 		// n++;
+	    // 		// MAP[n - 1][4] = 0;
+	    // 		timeOut();
+    	// 	},100);
+    	// }
+    	// timeOut();
+      setTimeout(go,500); 
+    }
+    
+    var go = function(){
+          
+          // MAP[n][4] = 1;
+          
           // 保存现在方块的位置
-          var square = SQUARE;
+          var square = new Array();
+          SQUARE.forEach(function(item){
+            square.push(item);
+          });
+          //var square = SQUARE.slice(0);
+          // var square = deepCopy(SQUARE);
 
           // 将原来位置设置0
           SQUARE.forEach(function(item){
-          	console.log(item)
+            console.log(item)
             MAP[item.y][item.x] = 0;
           });
           
@@ -189,7 +249,7 @@
           // 判断是否可以移动
           var result = canMove(MAP,SQUARE);
           console.log(result);
-          if (canMove(MAP,SQUARE)) {
+          if (result) {
             // 给所有方块下一1
             SQUARE.forEach(function(item){
               item.y++;
@@ -219,15 +279,12 @@
           
           // 显示现在方块
 
-	    		drawMap(MAP,$('#panel1 canvas')[0]);
-	    		// n++;
-	    		// MAP[n - 1][4] = 0;
-	    		timeOut();
-    		},100);
-    	}
-    	timeOut();
-    }
-    
+          drawMap(MAP,$('#panel1 canvas')[0]);
+          // n++;
+          // MAP[n - 1][4] = 0;
+          //go();
+          setTimeout(go,100);
+        }
 
     
     /**
@@ -307,6 +364,7 @@
      */
     var canMove = function cM( map , square ){
       // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
+      var index = 0;
       for (var i = 0; i < square.length; i++) {
         var temp = square[i];
         if (temp.x < 0 || temp.x >= GAME_PANEL_COL - 1) {
@@ -316,10 +374,16 @@
           return false;
         }
         if (map[temp.y][temp.x] != 0) {
+          console.log("执行判断可否移动的方法：第"+ i +"次");
           return false;
         }
+        index++;
+        // return true;
+      }
+      if (index == square.length) {
         return true;
       }
+      
     }
 
     /////////////////////////////////////////////////////////
@@ -523,6 +587,18 @@
       min = Math.ceil(min);
       max = Math.floor(max);
       return Math.floor(Math.random() * (max - min + 1)) + min; // 返回值包括设置的最大最小值
+    }
+    /**
+     * 深度拷贝
+     * @param  {[type]} source [description]
+     * @return {[type]}        [description]
+     */
+    var deepCopy= function(source) { 
+      var result={};
+      for (var key in source) {
+        result[key] = typeof source[key]=== Object ? deepCoyp(source[key]): source[key];
+      } 
+      return result; 
     }
   </script>
 </html>
