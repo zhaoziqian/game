@@ -131,7 +131,8 @@
       drawMap(MAP,$('#panel1 canvas')[0]);
 
       SQUARE = getSquare();
-      console.log(SQUARE + "方块");
+      console.log("初始化一个方块：")
+      console.log(SQUARE);
       // 启动自动下落
 	    autoDown();
 
@@ -190,11 +191,15 @@
           var result = canMove(MAP,SQUARE);
           console.log(result);
           if (canMove(MAP,SQUARE)) {
+            console.log("当前移动的方块 ");
+            console.log(SQUARE);
             SQUARE.forEach(function(item){
               MAP[item.y][item.x] = 1;
             });
           } else { // 得到新的方块,将触底方块放置到地图上
+            console.log("方块不能再移动，需要生成新的方块")
             SQUARE = getSquare();
+            console.log(square);
             square.forEach(function(item){
               MAP[item.y][item.x] = 2;
             });
@@ -234,8 +239,8 @@
       for (var i = 0; i < _square.model.length; i++) {
         for (var j = 0; j < _square.model[i].length; j++) {
           if (_square.model[i][j] == 1) {
-            var s = _square.model[i][j];
-            console.log(s);
+            // var s = _square.model[i][j];
+            // console.log(s);
             var cell = {
               x:0,
               y:0,
@@ -252,7 +257,7 @@
       }
       console.log("转换后的方块：")
       console.log(square);
-      square = squareRotate(direction,square,MAP);
+      // square = squareRotate(direction,square,MAP);
       return square;
     }
 
