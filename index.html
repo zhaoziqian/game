@@ -130,7 +130,7 @@
       drawMap(MAP,$('#panel1 canvas')[0]);
 
       SQUARE = getSquare();
-
+      console.log(SQUARE + "方块");
       // 启动自动下落
 	    autoDown();
 
@@ -223,17 +223,23 @@
       var roll_index = getRandomIntInclusive( 0 , square_types - 1);
       var _square = SQUARE_ARRAY[roll_index]; // 此处的方块数据结构不是全局变量的数据结构，需要转化
       var direction = getRandomIntInclusive(0,3);
+      console.log("下面生成方块")
       console.log(_square);
       // 找到添加方块的起始位置
       var x = GAME_PANEL_COL / 2 - 2;
       var index = 0;
       var square = new Array();
       // 根据模板生成方块
-      for (var i = 0; i < _square.length; i++) {
-        for (var j = 0; j < _square[i].length; j++) {
-          if (_square[i][j] == 1) {
-            var s = _square[i][j];
-            var cell;
+      for (var i = 0; i < _square.model.length; i++) {
+        for (var j = 0; j < _square.model[i].length; j++) {
+          if (_square.model[i][j] == 1) {
+            var s = _square.model[i][j];
+            console.log(s);
+            var cell = {
+              x:0,
+              y:0,
+              isCenter:false
+            }
             cell.x = x + j;
             cell.y = i;
             if (++index == 2) {
@@ -243,6 +249,8 @@
           }
         }
       }
+      console.log("转换后的方块：")
+      console.log(square);
       square = squareRotate(direction,square,MAP);
       return square;
     }
