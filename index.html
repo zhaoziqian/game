@@ -26,7 +26,7 @@
     // 设置游戏中需要的常量
 
     var CELL_RADIUS = 22; // 游戏中方块的边长
-    var GAME_PANEL_ROW = 27; // 游戏面板的行数
+    var GAME_PANEL_ROW = 28; // 游戏面板的行数
     var GAME_PANEL_COL = 14; // 游戏面板的列数
     var MAP = new Array();  // 创建地图信息，并初始化
     var ISOPEN = true;  // 数组是否可以接收方块信息
@@ -180,6 +180,7 @@
           var square = SQUARE;
           // 将原来位置设置0
           SQUARE.forEach(function(item){
+          	console.log(item)
             MAP[item.y][item.x] = 0;
           });
           // 给所有方块下一1
@@ -206,7 +207,7 @@
 	    		// n++;
 	    		// MAP[n - 1][4] = 0;
 	    		timeOut();
-    		},1000);
+    		},500);
     	}
     	timeOut();
     }
@@ -235,7 +236,7 @@
         for (var j = 0; j < _square.model[i].length; j++) {
           if (_square.model[i][j] == 1) {
             var s = _square.model[i][j];
-            console.log(s);
+//          console.log(s);
             var cell = {
               x:0,
               y:0,
@@ -361,28 +362,44 @@
       
       var square_array = new Array();
 
+<<<<<<< HEAD
       var square_1 = {
         id : 1,
         size : 4 ,
         model : [
+          [0,0,0,0],
+          [0,0,0,0],
           [1,1,1,1],
-          [0,0,0,0],
-          [0,0,0,0],
           [0,0,0,0]
-          
         ],
         center : [1,1]
       }
       square_array.push(square_1);
 //       console.log(square_array);
+=======
+//    var square_1 = {
+//      id : 1,
+//      size : 4 ,
+//      model : [
+//        [1,1,1,1],
+//        [0,0.0,0],
+//        [0,0,0,0],
+//        [0,0,0,0]
+//        
+//      ],
+//      center : [1,1]
+//    }
+//    square_array.push(square_1);
+         console.log(square_array);
+>>>>>>> 8c6bdb5466cc6245d4bfab0062f896f08bf2661f
       
       var square_2 = {
         id : 2,
         size : 4 ,
         model : [
+          [0,0,0,0],
           [1,1,1,0],
           [0,0,1,0],
-          [0,0,0,0],
           [0,0,0,0]
         ],
         center : [1,1]
@@ -393,9 +410,9 @@
         id : 3,
         size : 4 ,
         model : [
+          [0,0,0,0],
           [1,1,1,0],
           [1,0,0,0],
-          [0,0,0,0],
           [0,0,0,0]
         ],
         center : [1,1]
@@ -406,9 +423,9 @@
         id : 4,
         size : 4 ,
         model : [
+          [0,0,0,0],
           [1,1,1,0],
           [0,1,0,0],
-          [0,0,0,0],
           [0,0,0,0]
         ],
         center : [1,1]
@@ -419,9 +436,9 @@
         id : 5,
         size : 4 ,
         model : [
-          [0,1,0,0],
-          [1,1,0,0],
           [1,0,0,0],
+          [1,1,0,0],
+          [0,1,0,0],
           [0,0,0,0]
         ],
         center : [1,1]
@@ -445,15 +462,15 @@
         id : 7,
         size : 4 ,
         model : [
-          [1,1,0,0],
-          [1,1,0,0],
           [0,0,0,0],
+          [1,1,0,0],
+          [1,1,0,0],
           [0,0,0,0]
         ],
         center : [1,1]
       }
       square_array.push(square_7);
-      // console.log(cell_array);
+      // console.log(square_array);
       return square_array;
     }
 
