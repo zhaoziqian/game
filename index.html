@@ -48,20 +48,22 @@
     $(function(){
 
       function mapInit(row,col,map){
-        // console.log(row+"\t"+col+"\t"+map);
+//         console.log(row+"\t"+col+"\t"+map);
         // console.log(map);
         for (var i = 0; i < row; i++) {
+        	//每一行都要创建这一行的列数组，即创建了二维数组
           map.push(new Array(col));
-          //console.log(map);
+//          console.log(map);
           for (var j = 0; j < col; j++) {
             map[i][j] = 0;
           }
         }
+//      console.log(map);
         // console.log("被执行");
       }
 
       mapInit(GAME_PANEL_ROW,GAME_PANEL_COL,MAP);
-      MAP[0][1] = 1;
+//    MAP[0][1] = 1;
       // console.log(MAP);
       // console.log(CELL_RADIUS);
       
@@ -87,17 +89,21 @@
       var $canvas = $('canvas');
       $canvas.each(function(cvs){
         // console.log(cvs);
-        // console.log($(this));
+//         console.log($(this));
         // 生成画笔
         var ctx = $(this)[0].getContext('2d');
         // 将画笔放置会（0、0）点
+        //moveTo(x,y) 定义线条开始坐标
         ctx.moveTo(0,0);
+        //绘制线段，实线5，空线2，一直循环
         ctx.setLineDash([5, 2]);
+        //线的宽度
         ctx.lineWidth = 0.2;
         for (var i = 0; i < GAME_PANEL_ROW + 2; i++) { // 绘制横线
+        	//随机颜色
           var color_str = 'rgb('+Math.floor(255 - 7 * i)+',' + '0' + ',' + Math.floor(255 - 7 * i) + ')';
-          // console.log(color_str);
-          ctx.strokeStyle = color_str;
+//           console.log(color_str);
+          ctx.strokeStyle = color_str;//设置
           ctx.moveTo(0,i * CELL_RADIUS);
           ctx.lineTo(CANVAS_WIDTH,i * CELL_RADIUS);
           ctx.stroke();
@@ -119,20 +125,18 @@
       
 
       // 测试绘制小格子、测试颜色随机
-      $canvas.each(function(){
-        var ctx = $(this)[0].getContext('2d');
-        ctx.fillStyle = random_color();
-        ctx.fillRect( 3 * CELL_RADIUS , 5 * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
-        
-      });
+//    $canvas.each(function(){
+//      var ctx = $(this)[0].getContext('2d');
+//      ctx.fillStyle = random_color();
+//      ctx.fillRect( 3 * CELL_RADIUS , 5 * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
+//    });
       
       console.log($(window));
       move();
       drawMap(MAP,$('#panel1 canvas')[0]);
 
-      console.log(SQUARE_ARRAY);
 
-
+	  autoDown();
     }); // 准备就绪结束
 
 
@@ -191,6 +195,29 @@
 
 
     // 自动下落的方法
+    var autoDown = function(){
+    	
+    	console.log(squareInit()[0].model[0].length / 4);
+    	
+    	for(var i = 0; i < squareInit()[0].model[0].length / 4 ;i++){
+    		for(var j = i*4; j < (i+1) * 4 ; j++){
+    			console.log(squareInit()[0].model[0][j]);
+    		}
+    	}
+    	var n = 1;
+    	function timeOut(){
+    		setTimeout(function(){
+    			
+	    		MAP[n][4] = 1;
+	    		
+	    		drawMap(MAP,$('#panel1 canvas')[0]);
+	    		n++;
+	    		MAP[n - 1][4] = 0;
+	    		timeOut();
+    		},1000);
+    	}
+    	timeOut();
+    }
     
 
     // 生成方块的方法
@@ -227,7 +254,8 @@
       //                   #   #              //
       //                                      //
       //////////////////////////////////////////
-    
+      
+      
       var square_array = new Array();
 
       var square_1 = {
@@ -238,11 +266,12 @@
           [0,0,0,0],
           [0,0,0,0],
           [0,0,0,0]
+          
         ],
         center : [1,1]
       }
       square_array.push(square_1);
-      // console.log(cell_1);
+//       console.log(square_array);
       
       var square_2 = {
         id : 2,
@@ -332,6 +361,7 @@
      * @return {[type]}        []
      */
     function drawMap(map,canvas){
+    	
       var ctx = canvas.getContext('2d');
       for (var i = 0; i < map.length; i++) {
         for (var j = 0; j < map[0].length; j++) {
@@ -339,8 +369,11 @@
           // 当该地区有方块数据，就将其绘制在地图上
           if (map[i][j] == 1) {
             ctx.fillStyle = random_color(); // 设置方块的颜色
-            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
-
+            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1 , CELL_RADIUS - 1);
+          }
+          if(map[i][j] == 0){
+          	ctx.fillStyle = "white"; // 设置方块的颜色
+            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1, CELL_RADIUS - 1);
           }
 
         }
