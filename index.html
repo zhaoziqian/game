@@ -25,7 +25,7 @@
 
     // 设置游戏中需要的常量
     var CELL_RADIUS = 22; // 游戏中方块的边长
-    var GAME_PANEL_ROW = 25; // 游戏面板的行数
+    var GAME_PANEL_ROW = 27; // 游戏面板的行数
     var GAME_PANEL_COL = 13; // 游戏面板的列数
     var MAP = new Array();  // 创建地图信息，并初始化
     var ISOPEN = true;  // 数组是否可以接收方块信息
@@ -67,8 +67,8 @@
       // 绘制原始地图（测试）
       // 在游戏面板中分别加入canvas画布
       var $game_panel = $('.game-panel');
-      var CANVAS_WIDTH = CELL_RADIUS * (GAME_PANEL_COL + 2); // 画布的宽
-      var CANVAS_HEIGHT = CELL_RADIUS * (GAME_PANEL_ROW + 2); // 画布的高
+      var CANVAS_WIDTH = CELL_RADIUS * (GAME_PANEL_COL); // 画布的宽
+      var CANVAS_HEIGHT = CELL_RADIUS * (GAME_PANEL_ROW); // 画布的高
       // console.log($game_panel);
       var canvas = '<canvas width = "'
                   + CANVAS_WIDTH
@@ -93,7 +93,7 @@
         ctx.setLineDash([5, 2]);
         //线的宽度
         ctx.lineWidth = 0.2;
-        for (var i = 0; i < GAME_PANEL_ROW + 2; i++) { // 绘制横线
+        for (var i = 0; i < GAME_PANEL_ROW; i++) { // 绘制横线
         	//随机颜色
           var color_str = 'rgb('+Math.floor(255 - 7 * i)+',' + '0' + ',' + Math.floor(255 - 7 * i) + ')';
 //           console.log(color_str);
@@ -103,7 +103,7 @@
           ctx.stroke();
         }
         ctx.moveTo(0,0);
-        for (var i = 0; i < GAME_PANEL_COL + 2; i++) { // 绘制竖线
+        for (var i = 0; i < GAME_PANEL_COL; i++) { // 绘制竖线
           var color_str = 'rgb('+ '0' +',' + Math.floor(255 - 7 * i) + ',' + Math.floor(255 - 7 * i) + ')';
           ctx.strokeStyle = color_str;
           ctx.moveTo(i * CELL_RADIUS,0);
@@ -128,10 +128,10 @@
       console.log($(window));
       move();
       drawMap(MAP,$('#panel1 canvas')[0]);
-      
+
       // 启动自动下落
 	    autoDown();
-      
+
     }); // 准备就绪结束
 
 
