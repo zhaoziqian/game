@@ -31,18 +31,12 @@
       var ISOPEN = true;  // 数组是否可以接收方块信息
 
       var CELL = {
-        id : 1,
-        size : 4 ,
-        model : [
-          [1,1,1,1],
-          [0,0,0,0],
-          [0,0,0,0],
-          [0,0,0,0]
-        ],
-        center : [1,1]
+        x:0,
+        y:0,
+        isCenter:false
       }
 
-      var CELL_ARRAY = new Array();
+      var SQUARE = new Array();
       var SQUARE_ARRAY = new Array();
 
     $(function(){
@@ -197,19 +191,25 @@
     // 自动下落的方法
     var autoDown = function(){
     	
-    	console.log(squareInit()[0].model[0].length / 4);
+    	// console.log(squareInit()[0].model[0].length / 4);
     	
-    	for(var i = 0; i < squareInit()[0].model[0].length / 4 ;i++){
-    		for(var j = i*4; j < (i+1) * 4 ; j++){
-    			console.log(squareInit()[0].model[0][j]);
-    		}
-    	}
+    	// for(var i = 0; i < squareInit()[0].model[0].length / 4 ;i++){
+    	// 	for(var j = i*4; j < (i+1) * 4 ; j++){
+    	// 		console.log(squareInit()[0].model[0][j]);
+    	// 	}
+    	// }
     	var n = 1;
     	function timeOut(){
     		setTimeout(function(){
     			
 	    		MAP[n][4] = 1;
 	    		
+          // 保存现在方块的位置
+          // 将原来位置设置0
+          var square = SQUARE;
+          // 给所有方块下一1
+          // 显示现在方块
+
 	    		drawMap(MAP,$('#panel1 canvas')[0]);
 	    		n++;
 	    		MAP[n - 1][4] = 0;
@@ -235,9 +235,54 @@
 
     // 方块旋转的方法
     var squareRotate = function( angle , square ){
+      
 
+      // 1、保存原来方向的方块，如果旋转结束后的方块被判定不合法，就放回原本的方块
+      var old_square = square;
+
+      // 2、执行旋转的业务
+      square = doSquareRotate(angle,square);
+
+      // 3、执行判断现在方块是否可以被旋转的方法
+      
     }
 
+    /////////////////////////////////////////////////////////
+    //                                                     //
+    // 旋转的逻辑业务                                        //
+    // 旋转的逻辑业 A(a,b) 绕 B(m,n) 逆时针旋转90° 到 C(x,y)   //
+    // x = m + n - b  ;   y = n - m + a ;                  //
+    //                                                     //
+    /////////////////////////////////////////////////////////
+    
+    /**
+     * 将方块逆时针旋转的执行业务
+     * @param  {[type]} angle  [需要逆时针转90°的次数]
+     * @param  {[type]} square [需要旋转的方块]
+     * @return {[type]}        [返回旋转处理后的方块]
+     */
+    var doSquareRotate = function(angle , square) {
+      // 找到中心方块
+      var center_cell ;
+      for (var i = 0; i < square.length; i++) {
+        if (square[i].isCenter == true) {
+          center_cell = square[i];
+          break;
+        }
+      }
+      // 挨个设置没有方块单元的位置
+      for (var i = 0; i < angle; i++) {
+        for (var j = 0; j < square.length; j++) {
+          if (square[j].isCenter == false) { // 当该方块不是中心方块单元，就需要改变位置
+            var x = center_cell.x + center_cell.y - square[j].y;
+            var y = center_cell.y - center_cell.x + square[j].x;
+            square[j].x = x ;
+            square[j].y = y ;
+          }
+        }
+      }
+      return square; // 返回处理后的方块
+    } 
 
     /**
      * 初始化方块模板的方法
@@ -367,7 +412,7 @@
         for (var j = 0; j < map[0].length; j++) {
           
           // 当该地区有方块数据，就将其绘制在地图上
-          if (map[i][j] == 1) {
+          if (map[i][j] != 0) {
             ctx.fillStyle = random_color(); // 设置方块的颜色
             ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1 , CELL_RADIUS - 1);
           }
@@ -403,7 +448,7 @@
     function getRandomIntInclusive(min, max) {
       min = Math.ceil(min);
       max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+      return Math.floor(Math.random() * (max - min + 1)) + min; // 返回值包括设置的最大最小值
     }
   </script>
 </html>
