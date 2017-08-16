@@ -178,27 +178,43 @@
 	    		
           // 保存现在方块的位置
           var square = SQUARE;
+
           // 将原来位置设置0
           SQUARE.forEach(function(item){
           	console.log(item)
             MAP[item.y][item.x] = 0;
           });
-          // 给所有方块下一1
-          SQUARE.forEach(function(item){
-            item.y++;
-          });
+          
+          
           // 判断是否可以移动
           var result = canMove(MAP,SQUARE);
           console.log(result);
           if (canMove(MAP,SQUARE)) {
+            // 给所有方块下一1
             SQUARE.forEach(function(item){
+              item.y++;
               MAP[item.y][item.x] = 1;
             });
+            // SQUARE.forEach(function(item){
+            //   MAP[item.y][item.x] = 1;
+            // });
+            
+            console.log("保存的方块");
+            console.log(square);
+            console.log("移动的方块");
+            console.log(SQUARE);
+
           } else { // 得到新的方块,将触底方块放置到地图上
             SQUARE = getSquare();
             square.forEach(function(item){
               MAP[item.y][item.x] = 2;
             });
+
+            console.log("保存的方块");
+            console.log(square);
+            console.log("移动的方块");
+            console.log(SQUARE);
+
           }
           
           // 显示现在方块
@@ -207,7 +223,7 @@
 	    		// n++;
 	    		// MAP[n - 1][4] = 0;
 	    		timeOut();
-    		},500);
+    		},100);
     	}
     	timeOut();
     }
@@ -293,10 +309,10 @@
       // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
       for (var i = 0; i < square.length; i++) {
         var temp = square[i];
-        if (temp.x < 0 || temp.x >= GAME_PANEL_COL) {
+        if (temp.x < 0 || temp.x >= GAME_PANEL_COL - 1) {
           return false;
         }
-        if (temp.y < 0 || temp.y >= GAME_PANEL_ROW) {
+        if (temp.y < 0 || temp.y >= GAME_PANEL_ROW - 1) {
           return false;
         }
         if (map[temp.y][temp.x] != 0) {
@@ -362,7 +378,6 @@
       
       var square_array = new Array();
 
-<<<<<<< HEAD
       var square_1 = {
         id : 1,
         size : 4 ,
@@ -376,22 +391,6 @@
       }
       square_array.push(square_1);
 //       console.log(square_array);
-=======
-//    var square_1 = {
-//      id : 1,
-//      size : 4 ,
-//      model : [
-//        [1,1,1,1],
-//        [0,0.0,0],
-//        [0,0,0,0],
-//        [0,0,0,0]
-//        
-//      ],
-//      center : [1,1]
-//    }
-//    square_array.push(square_1);
-         console.log(square_array);
->>>>>>> 8c6bdb5466cc6245d4bfab0062f896f08bf2661f
       
       var square_2 = {
         id : 2,
