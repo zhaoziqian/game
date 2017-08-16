@@ -26,7 +26,7 @@
     // 设置游戏中需要的常量
     var CELL_RADIUS = 22; // 游戏中方块的边长
     var GAME_PANEL_ROW = 27; // 游戏面板的行数
-    var GAME_PANEL_COL = 13; // 游戏面板的列数
+    var GAME_PANEL_COL = 14; // 游戏面板的列数
     var MAP = new Array();  // 创建地图信息，并初始化
     var ISOPEN = true;  // 数组是否可以接收方块信息
 
@@ -129,6 +129,8 @@
       move();
       drawMap(MAP,$('#panel1 canvas')[0]);
 
+      SQUARE = getSquare();
+
       // 启动自动下落
 	    autoDown();
 
@@ -171,17 +173,37 @@
     	function timeOut(){
     		setTimeout(function(){
     			
-	    		MAP[n][4] = 1;
+	    		// MAP[n][4] = 1;
 	    		
           // 保存现在方块的位置
-          // 将原来位置设置0
           var square = SQUARE;
+          // 将原来位置设置0
+          SQUARE.forEach(function(item){
+            MAP[item.y][item.x] = 0;
+          });
           // 给所有方块下一1
+          SQUARE.forEach(function(item){
+            item.y++;
+          });
+          // 判断是否可以移动
+          var result = canMove(MAP,SQUARE);
+          console.log(result);
+          if (canMove(MAP,SQUARE)) {
+            SQUARE.forEach(function(item){
+              MAP[item.y][item.x] = 1;
+            });
+          } else { // 得到新的方块,将触底方块放置到地图上
+            SQUARE = getSquare();
+            square.forEach(function(item){
+              MAP[item.y][item.x] = 2;
+            });
+          }
+          
           // 显示现在方块
 
 	    		drawMap(MAP,$('#panel1 canvas')[0]);
-	    		n++;
-	    		MAP[n - 1][4] = 0;
+	    		// n++;
+	    		// MAP[n - 1][4] = 0;
 	    		timeOut();
     		},1000);
     	}
@@ -189,17 +211,40 @@
     }
     
 
-    // 生成方块的方法
     
+    /**
+     * 生成方块的方法
+     * @return {[type]} [返回生成好的方块]
+     */
     var getSquare = function(){
-      
+      console.log("开始执行生成方块方法");
       // 得到可以生成的方块模板数组的长度
       var square_types = SQUARE_ARRAY.length;
       var roll_index = getRandomIntInclusive( 0 , square_types - 1);
-      var square = SQUARE_ARRAY[roll_index];
+      var _square = SQUARE_ARRAY[roll_index]; // 此处的方块数据结构不是全局变量的数据结构，需要转化
       var direction = getRandomIntInclusive(0,3);
-
-      
+      console.log(_square);
+      // 找到添加方块的起始位置
+      var x = GAME_PANEL_COL / 2 - 2;
+      var index = 0;
+      var square = new Array();
+      // 根据模板生成方块
+      for (var i = 0; i < _square.length; i++) {
+        for (var j = 0; j < _square[i].length; j++) {
+          if (_square[i][j] == 1) {
+            var s = _square[i][j];
+            var cell;
+            cell.x = x + j;
+            cell.y = i;
+            if (++index == 2) {
+              cell.isCenter = true;
+            }
+            square.push(cell);
+          }
+        }
+      }
+      square = squareRotate(direction,square,MAP);
+      return square;
     }
 
     /**
@@ -233,7 +278,7 @@
      * @param  {[type]} square [需要比对的方块信息]
      * @return {[type]}        [成功返回true，失败返回false]
      */
-    var canMove = function( map , square ){
+    var canMove = function cM( map , square ){
       // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
       for (var i = 0; i < square.length; i++) {
         var temp = square[i];
