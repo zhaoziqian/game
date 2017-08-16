@@ -26,7 +26,7 @@
     // 设置游戏中需要的常量
 
     var CELL_RADIUS = 22; // 游戏中方块的边长
-    var GAME_PANEL_ROW = 28; // 游戏面板的行数
+    var GAME_PANEL_ROW = 29; // 游戏面板的行数
     var GAME_PANEL_COL = 14; // 游戏面板的列数
     var MAP = new Array();  // 创建地图信息，并初始化
     var ISOPEN = true;  // 数组是否可以接收方块信息
@@ -245,19 +245,17 @@
             MAP[item.y][item.x] = 0;
           });
           
-          
+          // 给所有方块下一1
+          SQUARE.forEach(function(item){
+            item.y++;
+          });
           // 判断是否可以移动
           var result = canMove(MAP,SQUARE);
           console.log(result);
           if (result) {
-            // 给所有方块下一1
             SQUARE.forEach(function(item){
-              item.y++;
               MAP[item.y][item.x] = 1;
             });
-            // SQUARE.forEach(function(item){
-            //   MAP[item.y][item.x] = 1;
-            // });
             
             console.log("保存的方块");
             console.log(square);
@@ -266,7 +264,9 @@
 
           } else { // 得到新的方块,将触底方块放置到地图上
             SQUARE = getSquare();
+
             square.forEach(function(item){
+              item.y--;
               MAP[item.y][item.x] = 2;
             });
 
@@ -364,23 +364,26 @@
      */
     var canMove = function cM( map , square ){
       // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
+      // console.log(map);
       var index = 0;
       for (var i = 0; i < square.length; i++) {
         var temp = square[i];
+        if (map[temp.y][temp.x] != 0) {
+          console.log("执行判断可否移动的方法：第"+ i +"次");
+          console.log(map[temp.y][temp.x]);
+          console.log(temp);
+          return false;
+        }
         if (temp.x < 0 || temp.x >= GAME_PANEL_COL - 1) {
           return false;
         }
         if (temp.y < 0 || temp.y >= GAME_PANEL_ROW - 1) {
           return false;
         }
-        if (map[temp.y][temp.x] != 0) {
-          console.log("执行判断可否移动的方法：第"+ i +"次");
-          return false;
-        }
         index++;
         // return true;
       }
-      if (index == square.length) {
+      if (index == square.length ) {
         return true;
       }
       
