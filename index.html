@@ -24,38 +24,41 @@
   <script type="text/javascript">
 
     // 设置游戏中需要的常量
-      var CELL_RADIUS = 22; // 游戏中方块的边长
-      var GAME_PANEL_ROW = 25; // 游戏面板的行数
-      var GAME_PANEL_COL = 13; // 游戏面板的列数
-      var MAP = new Array();  // 创建地图信息，并初始化
-      var ISOPEN = true;  // 数组是否可以接收方块信息
 
-      var CELL = {
-        x:0,
-        y:0,
-        isCenter:false
-      }
+    var CELL_RADIUS = 22; // 游戏中方块的边长
+    var GAME_PANEL_ROW = 27; // 游戏面板的行数
+    var GAME_PANEL_COL = 14; // 游戏面板的列数
+    var MAP = new Array();  // 创建地图信息，并初始化
+    var ISOPEN = true;  // 数组是否可以接收方块信息
 
-      var SQUARE = new Array();
-      var SQUARE_ARRAY = new Array();
+    var CELL = {
+      x:0,
+      y:0,
+      isCenter:false
+    }
+
+    var SQUARE = new Array();
+    var SQUARE_ARRAY = new Array();
 
     $(function(){
 
       function mapInit(row,col,map){
-        // console.log(row+"\t"+col+"\t"+map);
+//         console.log(row+"\t"+col+"\t"+map);
         // console.log(map);
         for (var i = 0; i < row; i++) {
+        	//每一行都要创建这一行的列数组，即创建了二维数组
           map.push(new Array(col));
-          //console.log(map);
+//          console.log(map);
           for (var j = 0; j < col; j++) {
             map[i][j] = 0;
           }
         }
+//      console.log(map);
         // console.log("被执行");
       }
 
       mapInit(GAME_PANEL_ROW,GAME_PANEL_COL,MAP);
-      MAP[0][1] = 1;
+//    MAP[0][1] = 1;
       // console.log(MAP);
       // console.log(CELL_RADIUS);
       
@@ -65,8 +68,8 @@
       // 绘制原始地图（测试）
       // 在游戏面板中分别加入canvas画布
       var $game_panel = $('.game-panel');
-      var CANVAS_WIDTH = CELL_RADIUS * (GAME_PANEL_COL + 2); // 画布的宽
-      var CANVAS_HEIGHT = CELL_RADIUS * (GAME_PANEL_ROW + 2); // 画布的高
+      var CANVAS_WIDTH = CELL_RADIUS * (GAME_PANEL_COL); // 画布的宽
+      var CANVAS_HEIGHT = CELL_RADIUS * (GAME_PANEL_ROW); // 画布的高
       // console.log($game_panel);
       var canvas = '<canvas width = "'
                   + CANVAS_WIDTH
@@ -81,23 +84,27 @@
       var $canvas = $('canvas');
       $canvas.each(function(cvs){
         // console.log(cvs);
-        // console.log($(this));
+//         console.log($(this));
         // 生成画笔
         var ctx = $(this)[0].getContext('2d');
         // 将画笔放置会（0、0）点
+        //moveTo(x,y) 定义线条开始坐标
         ctx.moveTo(0,0);
+        //绘制线段，实线5，空线2，一直循环
         ctx.setLineDash([5, 2]);
+        //线的宽度
         ctx.lineWidth = 0.2;
-        for (var i = 0; i < GAME_PANEL_ROW + 2; i++) { // 绘制横线
+        for (var i = 0; i < GAME_PANEL_ROW; i++) { // 绘制横线
+        	//随机颜色
           var color_str = 'rgb('+Math.floor(255 - 7 * i)+',' + '0' + ',' + Math.floor(255 - 7 * i) + ')';
-          // console.log(color_str);
-          ctx.strokeStyle = color_str;
+//           console.log(color_str);
+          ctx.strokeStyle = color_str;//设置
           ctx.moveTo(0,i * CELL_RADIUS);
           ctx.lineTo(CANVAS_WIDTH,i * CELL_RADIUS);
           ctx.stroke();
         }
         ctx.moveTo(0,0);
-        for (var i = 0; i < GAME_PANEL_COL + 2; i++) { // 绘制竖线
+        for (var i = 0; i < GAME_PANEL_COL; i++) { // 绘制竖线
           var color_str = 'rgb('+ '0' +',' + Math.floor(255 - 7 * i) + ',' + Math.floor(255 - 7 * i) + ')';
           ctx.strokeStyle = color_str;
           ctx.moveTo(i * CELL_RADIUS,0);
@@ -113,19 +120,20 @@
       
 
       // 测试绘制小格子、测试颜色随机
-      $canvas.each(function(){
-        var ctx = $(this)[0].getContext('2d');
-        ctx.fillStyle = random_color();
-        ctx.fillRect( 3 * CELL_RADIUS , 5 * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
-        
-      });
+//    $canvas.each(function(){
+//      var ctx = $(this)[0].getContext('2d');
+//      ctx.fillStyle = random_color();
+//      ctx.fillRect( 3 * CELL_RADIUS , 5 * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
+//    });
       
       console.log($(window));
       move();
       drawMap(MAP,$('#panel1 canvas')[0]);
 
-      console.log(SQUARE_ARRAY);
-
+      SQUARE = getSquare();
+      console.log(SQUARE + "方块");
+      // 启动自动下落
+	    autoDown();
 
     }); // 准备就绪结束
 
@@ -151,67 +159,188 @@
 
     }
 
-    // 需要判断是否可以移动
-
-    // // 找到现在操作的方块
-    // var findCurrentSqual = function(){
-    //   // 当前可以操作的方块是从最顶端出现的，那么一开始期方块的位置必定是map[0][?]
-    //   // ------------------------------------------------------------------
-    //   // 每次扫描第一行内容，有方块的位置就加入到数组中
-    //   // 当再次扫描第一行内容的时候，没有一个方块信息，就说明所有方块全部出完
-    //   // 那么就讲该数组关闭，不能再加入任何方块信息
-    //   // 当该数组中，最下面的方块没有移动空间了，那么说明整个方块元素已经到底
-    //   // 这是再次将数组打开再次可以接收方块
-    //   // ------------------------------------------------------------------
-    //   // 那么当没有下落空间的时候就不能再移动
-    //   var cell_array = new Array();
-    //   if (ISOPEN) {
-
-    //     for (var i = 0; i < map[0].length; i++) {
-    //       // 从第4行开始受控制，0、1、2、3行为初始化行，用来添加方块，但是玩家不能控制
-    //       if (map[4][i] == 1) { 
-    //         var cell;
-    //         cell.offsetX = i;
-    //         cell.offsetY = 0;
-    //         cell_array.push(cell);
-    //       } else {
-    //         ISOPEN = false;
-    //       }
-    //     }
-    //   }
-
-    //   return cell_array;
-    // }
-
 
     // 自动下落的方法
+    var autoDown = function(){
+    	
+    	// console.log(squareInit()[0].model[0].length / 4);
+    	
+    	// for(var i = 0; i < squareInit()[0].model[0].length / 4 ;i++){
+    	// 	for(var j = i*4; j < (i+1) * 4 ; j++){
+    	// 		console.log(squareInit()[0].model[0][j]);
+    	// 	}
+    	// }
+    	var n = 1;
+    	function timeOut(){
+    		setTimeout(function(){
+    			
+	    		// MAP[n][4] = 1;
+	    		
+          // 保存现在方块的位置
+          var square = SQUARE;
+          // 将原来位置设置0
+          SQUARE.forEach(function(item){
+            MAP[item.y][item.x] = 0;
+          });
+          // 给所有方块下一1
+          SQUARE.forEach(function(item){
+            item.y++;
+          });
+          // 判断是否可以移动
+          var result = canMove(MAP,SQUARE);
+          console.log(result);
+          if (canMove(MAP,SQUARE)) {
+            SQUARE.forEach(function(item){
+              MAP[item.y][item.x] = 1;
+            });
+          } else { // 得到新的方块,将触底方块放置到地图上
+            SQUARE = getSquare();
+            square.forEach(function(item){
+              MAP[item.y][item.x] = 2;
+            });
+          }
+          
+          // 显示现在方块
+
+	    		drawMap(MAP,$('#panel1 canvas')[0]);
+	    		// n++;
+	    		// MAP[n - 1][4] = 0;
+	    		timeOut();
+    		},1000);
+    	}
+    	timeOut();
+    }
     
 
-    // 生成方块的方法
     
+    /**
+     * 生成方块的方法
+     * @return {[type]} [返回生成好的方块]
+     */
     var getSquare = function(){
-      
+      console.log("开始执行生成方块方法");
       // 得到可以生成的方块模板数组的长度
       var square_types = SQUARE_ARRAY.length;
       var roll_index = getRandomIntInclusive( 0 , square_types - 1);
-      var square = SQUARE_ARRAY[roll_index];
+      var _square = SQUARE_ARRAY[roll_index]; // 此处的方块数据结构不是全局变量的数据结构，需要转化
       var direction = getRandomIntInclusive(0,3);
+      console.log("下面生成方块")
+      console.log(_square);
+      // 找到添加方块的起始位置
+      var x = GAME_PANEL_COL / 2 - 2;
+      var index = 0;
+      var square = new Array();
+      // 根据模板生成方块
+      for (var i = 0; i < _square.model.length; i++) {
+        for (var j = 0; j < _square.model[i].length; j++) {
+          if (_square.model[i][j] == 1) {
+            var s = _square.model[i][j];
+            console.log(s);
+            var cell = {
+              x:0,
+              y:0,
+              isCenter:false
+            }
+            cell.x = x + j;
+            cell.y = i;
+            if (++index == 2) {
+              cell.isCenter = true;
+            }
+            square.push(cell);
+          }
+        }
+      }
+      console.log("转换后的方块：")
+      console.log(square);
+      square = squareRotate(direction,square,MAP);
+      return square;
+    }
 
+    /**
+     * 方块旋转的业务，逆时针旋转
+     * @param  {[type]} angle  [需要逆时针旋转angle次90°]
+     * @param  {[type]} square [需要转转的方块]
+     * @param  {[type]} map    [需要比对的地图]
+     * @return {[type]}        [旋转成功返回旋转后的方块，不能旋转就会返回原本的方块]
+     */
+    var squareRotate = function( angle , square ,map){
       
+
+
+      // 1、保存原来方向的方块，如果旋转结束后的方块被判定不合法，就放回原本的方块
+      var old_square = square;
+
+      // 2、执行旋转的业务
+      square = doSquareRotate(angle,square);
+
+      // 3、执行判断现在方块是否可以被旋转的方法
+      if (canMove(map,square) ) {
+        return square;
+      } else {
+        return old_square;
+      }
+
     }
 
-    // 方块旋转的方法
-    var squareRotate = function( angle , square ){
-      
+    /**
+     * 判断是否可以移动的方法
+     * @param  {[type]} map    [需要比对的地图信息]
+     * @param  {[type]} square [需要比对的方块信息]
+     * @return {[type]}        [成功返回true，失败返回false]
+     */
+    var canMove = function cM( map , square ){
+      // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
+      for (var i = 0; i < square.length; i++) {
+        var temp = square[i];
+        if (temp.x < 0 || temp.x >= GAME_PANEL_COL) {
+          return false;
+        }
+        if (temp.y < 0 || temp.y >= GAME_PANEL_ROW) {
+          return false;
+        }
+        if (map[temp.y][temp.x] != 0) {
+          return false;
+        }
+        return true;
+      }
     }
 
-    var canRotate = function(){
-
-    }
-
-    var center_cell = function(square,map){
-
-    }
+    /////////////////////////////////////////////////////////
+    //                                                     //
+    // 旋转的逻辑业务                                        //
+    // 旋转的逻辑业 A(a,b) 绕 B(m,n) 逆时针旋转90° 到 C(x,y)   //
+    // x = m + n - b  ;   y = n - m + a ;                  //
+    //                                                     //
+    /////////////////////////////////////////////////////////
+    
+    /**
+     * 将方块逆时针旋转的执行业务
+     * @param  {[type]} angle  [需要逆时针转90°的次数]
+     * @param  {[type]} square [需要旋转的方块]
+     * @return {[type]}        [返回旋转处理后的方块]
+     */
+    var doSquareRotate = function(angle , square) {
+      // 找到中心方块
+      var center_cell ;
+      for (var i = 0; i < square.length; i++) {
+        if (square[i].isCenter == true) {
+          center_cell = square[i];
+          break;
+        }
+      }
+      // 挨个设置没有方块单元的位置
+      for (var i = 0; i < angle; i++) {
+        for (var j = 0; j < square.length; j++) {
+          if (square[j].isCenter == false) { // 当该方块不是中心方块单元，就需要改变位置
+            var x = center_cell.x + center_cell.y - square[j].y;
+            var y = center_cell.y - center_cell.x + square[j].x;
+            square[j].x = x ;
+            square[j].y = y ;
+          }
+        }
+      }
+      return square; // 返回处理后的方块
+    } 
 
     /**
      * 初始化方块模板的方法
@@ -228,7 +357,8 @@
       //                   #   #              //
       //                                      //
       //////////////////////////////////////////
-    
+      
+      
       var square_array = new Array();
 
       var square_1 = {
@@ -239,11 +369,12 @@
           [0,0,0,0],
           [0,0,0,0],
           [0,0,0,0]
+          
         ],
         center : [1,1]
       }
       square_array.push(square_1);
-      // console.log(cell_1);
+//       console.log(square_array);
       
       var square_2 = {
         id : 2,
@@ -333,15 +464,19 @@
      * @return {[type]}        []
      */
     function drawMap(map,canvas){
+    	
       var ctx = canvas.getContext('2d');
       for (var i = 0; i < map.length; i++) {
         for (var j = 0; j < map[0].length; j++) {
           
           // 当该地区有方块数据，就将其绘制在地图上
-          if (map[i][j] == 1) {
+          if (map[i][j] != 0) {
             ctx.fillStyle = random_color(); // 设置方块的颜色
-            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS , CELL_RADIUS);
-
+            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1 , CELL_RADIUS - 1);
+          }
+          if(map[i][j] == 0){
+          	ctx.fillStyle = "white"; // 设置方块的颜色
+            ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1, CELL_RADIUS - 1);
           }
 
         }
@@ -371,7 +506,7 @@
     function getRandomIntInclusive(min, max) {
       min = Math.ceil(min);
       max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+      return Math.floor(Math.random() * (max - min + 1)) + min; // 返回值包括设置的最大最小值
     }
   </script>
 </html>
