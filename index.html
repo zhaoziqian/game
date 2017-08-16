@@ -145,6 +145,7 @@
       $(window).on('keypress',function(e){
 
         console.log(e);
+        // charCode
         // w --- 119
         // s --- 115
         // a --- 97
@@ -154,7 +155,20 @@
         // 2、将原来的位置根据方向处理
         // 3、将原来的位置清除
         // 4、将现在的位置设置到数组里
-
+        switch(e.charCode){
+          case 119:
+          squareRotate(1,SQUARE,MAP);
+          break;
+          case 115:
+          
+          break;
+          case 97:
+          
+          break;
+          case 100:
+          
+          break;
+        }
 
       });
 
