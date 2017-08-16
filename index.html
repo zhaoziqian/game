@@ -24,20 +24,20 @@
   <script type="text/javascript">
 
     // 设置游戏中需要的常量
-      var CELL_RADIUS = 22; // 游戏中方块的边长
-      var GAME_PANEL_ROW = 25; // 游戏面板的行数
-      var GAME_PANEL_COL = 13; // 游戏面板的列数
-      var MAP = new Array();  // 创建地图信息，并初始化
-      var ISOPEN = true;  // 数组是否可以接收方块信息
+    var CELL_RADIUS = 22; // 游戏中方块的边长
+    var GAME_PANEL_ROW = 25; // 游戏面板的行数
+    var GAME_PANEL_COL = 13; // 游戏面板的列数
+    var MAP = new Array();  // 创建地图信息，并初始化
+    var ISOPEN = true;  // 数组是否可以接收方块信息
 
-      var CELL = {
-        x:0,
-        y:0,
-        isCenter:false
-      }
+    var CELL = {
+      x:0,
+      y:0,
+      isCenter:false
+    }
 
-      var SQUARE = new Array();
-      var SQUARE_ARRAY = new Array();
+    var SQUARE = new Array();
+    var SQUARE_ARRAY = new Array();
 
     $(function(){
 
@@ -128,9 +128,10 @@
       console.log($(window));
       move();
       drawMap(MAP,$('#panel1 canvas')[0]);
-
-
-	  autoDown();
+      
+      // 启动自动下落
+	    autoDown();
+      
     }); // 准备就绪结束
 
 
@@ -154,38 +155,6 @@
       });
 
     }
-
-    // 需要判断是否可以移动
-
-    // // 找到现在操作的方块
-    // var findCurrentSqual = function(){
-    //   // 当前可以操作的方块是从最顶端出现的，那么一开始期方块的位置必定是map[0][?]
-    //   // ------------------------------------------------------------------
-    //   // 每次扫描第一行内容，有方块的位置就加入到数组中
-    //   // 当再次扫描第一行内容的时候，没有一个方块信息，就说明所有方块全部出完
-    //   // 那么就讲该数组关闭，不能再加入任何方块信息
-    //   // 当该数组中，最下面的方块没有移动空间了，那么说明整个方块元素已经到底
-    //   // 这是再次将数组打开再次可以接收方块
-    //   // ------------------------------------------------------------------
-    //   // 那么当没有下落空间的时候就不能再移动
-    //   var cell_array = new Array();
-    //   if (ISOPEN) {
-
-    //     for (var i = 0; i < map[0].length; i++) {
-    //       // 从第4行开始受控制，0、1、2、3行为初始化行，用来添加方块，但是玩家不能控制
-    //       if (map[4][i] == 1) { 
-    //         var cell;
-    //         cell.offsetX = i;
-    //         cell.offsetY = 0;
-    //         cell_array.push(cell);
-    //       } else {
-    //         ISOPEN = false;
-    //       }
-    //     }
-    //   }
-
-    //   return cell_array;
-    // }
 
 
     // 自动下落的方法
@@ -233,8 +202,14 @@
       
     }
 
-    // 方块旋转的方法
-    var squareRotate = function( angle , square ){
+    /**
+     * 方块旋转的业务，逆时针旋转
+     * @param  {[type]} angle  [需要逆时针旋转angle次90°]
+     * @param  {[type]} square [需要转转的方块]
+     * @param  {[type]} map    [需要比对的地图]
+     * @return {[type]}        [旋转成功返回旋转后的方块，不能旋转就会返回原本的方块]
+     */
+    var squareRotate = function( angle , square ,map){
       
 
       // 1、保存原来方向的方块，如果旋转结束后的方块被判定不合法，就放回原本的方块
@@ -244,7 +219,35 @@
       square = doSquareRotate(angle,square);
 
       // 3、执行判断现在方块是否可以被旋转的方法
-      
+      if (canMove(map,square) ) {
+        return square;
+      } else {
+        return old_square;
+      }
+
+    }
+
+    /**
+     * 判断是否可以移动的方法
+     * @param  {[type]} map    [需要比对的地图信息]
+     * @param  {[type]} square [需要比对的方块信息]
+     * @return {[type]}        [成功返回true，失败返回false]
+     */
+    var canMove = function( map , square ){
+      // 取出square中的每个cell，比对该位置是否可以设置到地图上，可以就说明可以移动
+      for (var i = 0; i < square.length; i++) {
+        var temp = square[i];
+        if (temp.x < 0 || temp.x >= GAME_PANEL_COL) {
+          return false;
+        }
+        if (temp.y < 0 || temp.y >= GAME_PANEL_ROW) {
+          return false;
+        }
+        if (map[temp.y][temp.x] != 0) {
+          return false;
+        }
+        return true;
+      }
     }
 
     /////////////////////////////////////////////////////////
