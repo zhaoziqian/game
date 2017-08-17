@@ -157,16 +157,16 @@
         // 4、将现在的位置设置到数组里
         switch(e.charCode){
           case 119:
-          squareRotate(1,SQUARE,MAP);
+          SQUARE = squareRotate(1,SQUARE,MAP);
           break;
           case 115:
           
           break;
           case 97:
-          
+          SQUARE = goLeft(SQUARE,MAP);
           break;
           case 100:
-          
+          SQUARE = goRight(SQUARE,MAP);
           break;
         }
 
@@ -344,6 +344,48 @@
       return square;
     }
 
+    var goLeft = function(square,map){
+      // 1、保存原来方块的位置
+      var old_square = square;
+      // 2、清除原来位置的方块
+      old_square.forEach(function(item){
+        MAP[item.y][item.x] = 0;
+      });
+      // 3、执行移动的业务
+      square.forEach(function(item){
+        item.x--;
+      });
+      // 4、执行判断业务
+      var result = canMove(map,square);
+      // 5、返回方块
+      if (result) {
+        return square;
+      } else {
+        return old_square;
+      }
+    }
+
+    var goRight = function(square,map){
+      // 1、保存原来方块的位置
+      var old_square = square;
+      // 2、清除原来位置的方块
+      old_square.forEach(function(item){
+        MAP[item.y][item.x] = 0;
+      });
+      // 3、执行移动的业务
+      square.forEach(function(item){
+        item.x++;
+      });
+      // 4、执行判断业务
+      var result = canMove(map,square);
+      // 5、返回方块
+      if (result) {
+        return square;
+      } else {
+        return old_square;
+      }
+    }
+
     /**
      * 方块旋转的业务，逆时针旋转
      * @param  {[type]} angle  [需要逆时针旋转angle次90°]
@@ -353,16 +395,26 @@
      */
     var squareRotate = function( angle , square ,map){
       
-
-
       // 1、保存原来方向的方块，如果旋转结束后的方块被判定不合法，就放回原本的方块
       var old_square = square;
+
+      // 4、清楚原来位置的方块 !!!!!--------这句放在这就是正确的
+      old_square.forEach(function(item){
+        MAP[item.y][item.x] = 0;
+      });
 
       // 2、执行旋转的业务
       square = doSquareRotate(angle,square);
 
       // 3、执行判断现在方块是否可以被旋转的方法
-      if (canMove(map,square) ) {
+      var result = canMove(map,square);
+
+      // // 4、清楚原来位置的方块
+      // old_square.forEach(function(item){
+      //   MAP[item.y][item.x] = 0;
+      // });
+
+      if (result) {
         return square;
       } else {
         return old_square;
@@ -388,7 +440,7 @@
           console.log(temp);
           return false;
         }
-        if (temp.x < 0 || temp.x >= GAME_PANEL_COL - 1) {
+        if (temp.x < 0 || temp.x >= GAME_PANEL_COL - 0) {
           return false;
         }
         if (temp.y < 0 || temp.y >= GAME_PANEL_ROW - 1) {
@@ -568,7 +620,8 @@
           
           // 当该地区有方块数据，就将其绘制在地图上
           if (map[i][j] != 0) {
-            ctx.fillStyle = random_color(); // 设置方块的颜色
+            // ctx.fillStyle = random_color(); // 设置方块的颜色
+            ctx.fillStyle = "black";
             ctx.fillRect( j * CELL_RADIUS , i * CELL_RADIUS , CELL_RADIUS - 1 , CELL_RADIUS - 1);
           }
           if(map[i][j] == 0){
